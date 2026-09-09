@@ -23,7 +23,9 @@
 | Operators | รูปแบบ literal ที่ escape ตามความจำเป็น | `>=`, `++`, `+`, `/` ฯลฯ | ไม่รวม `!=`, `%`, `!` |
 | Symbols | `\(`, `\)`, `;` | `(`, `)`, `;` | ไม่รวม `{`, `}` |
 
-Keywords ใช้การ remap จาก ID ของ SLY เพื่อไม่จับ keyword เป็น prefix ของ identifier เช่น `iffy` ต้องเป็น ID หนึ่งตัว ส่วน `if` เป็น KEYWORD การจับ comment อยู่ก่อน division และ operator สองตัวอักษรอยู่ก่อน operator ตัวเดียว
+Keywords ตรวจชื่อเต็มใน set หลัง SLY จับ ID ด้วย Regex เพื่อไม่จับ keyword เป็น prefix ของ identifier เช่น `iffy` ต้องเป็น ID หนึ่งตัว ส่วน `if` เป็น KEYWORD การจับ comment อยู่ก่อน division และ operator สองตัวอักษรอยู่ก่อน operator ตัวเดียว
+
+ชื่อ token ประกาศเป็น string และใช้ decorator `token_rule` ที่ประกาศไว้อย่างชัดเจนเพื่อแนบ pattern ให้ SLY อ่าน จึงไม่ต้องอาศัยชื่อ token และ `_` ที่ SLY สร้างให้ใน class namespace และตัวตรวจโค้ดไม่พบชื่อที่ยังไม่ได้ประกาศ การจับ token ยังคงทำโดย SLY และ Regex
 
 Block comment regex จับถึง EOF ได้เพื่อรายงาน unterminated comment; method ตรวจว่ามี `*/` จริงหลังตัวเปิด โดย `/*/` ไม่ใช่ comment ที่สมบูรณ์ กฎนี้ไม่รองรับ nested comments
 

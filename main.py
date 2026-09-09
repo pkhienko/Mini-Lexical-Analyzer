@@ -1,5 +1,3 @@
-"""CLI: python main.py inputs/valid_basic.txt"""
-
 import argparse
 from pathlib import Path
 
