@@ -1,0 +1,10 @@
+read A;
+read B;
+if A >= B then
+    print "A is greater";
+    print newline;
+endif
+// this line is a comment
+/* this is
+   a block comment */
+A++;
