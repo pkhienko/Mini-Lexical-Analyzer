@@ -1,22 +1,30 @@
-import argparse
-from pathlib import Path
+import sys
 from lexer import LexicalError, analyze
 
+def main():
+    if len(sys.argv) != 2:
+        print("Error: Please provide one input file")
+        print("Usage: py main.py <input_file>")
+        return 1
 
-def main(argv=None):
-    parser = argparse.ArgumentParser(description="Mini Lexical Analyzer (Python + SLY)")
-    parser.add_argument("input", type=Path, help="UTF-8 source code file (.txt)")
-    args = parser.parse_args(argv)
+    filename = sys.argv[1]
+
     try:
-        source = args.input.read_text(encoding="utf-8-sig")
+        with open(filename, "r", encoding="utf-8-sig") as file:
+            source = file.read()
+    except FileNotFoundError:
+        print("Error: File not found")
+        return 1
     except (OSError, UnicodeError) as error:
-        parser.exit(2, f"Input error: {error}\n")
+        print(f"Error: Unable to read file: {error}")
+        return 1
 
     try:
         analyze(source)
     except LexicalError as error:
         print(error)
         return 1
+
     return 0
 
 

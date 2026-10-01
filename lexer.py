@@ -24,22 +24,7 @@ class MiniLexer(Lexer):
     tokens = {"ID", "INTEGER", "STRING", "KEYWORD", "PLUS", "MINUS", "TIMES", "DIVIDE", "ASSIGN", "GT", "GE", "LT", "LE", "EQ", "INCREMENT", "DECREMENT", "LPAREN", "RPAREN", "SEMICOLON"}
     keywords = {"if", "then", "else", "endif", "while", "do", "endwhile", "print", "newline", "read"}
     ignore = " \t\r"
-
-    @token_rule(r'//[^\n]*')
-    def ignore_line_comment(self, token):
-        pass
-
-
-    @token_rule(r'/\*[\s\S]*?\*/')
-    def ignore_block_comment(self, token):
-        self.lineno += token.value.count("\n")
-
-
-    @token_rule(r'/\*')
-    def ignore_unclosed_comment(self, token):
-        raise LexicalError("/", token.lineno, token.index, "unterminated block comment")
-
-
+    
     GE = r'>='
     LE = r'<='
     EQ = r'=='
@@ -58,14 +43,27 @@ class MiniLexer(Lexer):
     SEMICOLON = r';'
 
     STRING = r'"[^"\n\r]*"'
+    INTEGER = r'[0-9]+'
+
+    @token_rule(r'//[^\n]*')
+    def ignore_line_comment(self, token):
+        pass
+
+
+    @token_rule(r'/\*[\s\S]*?\*/')
+    def ignore_block_comment(self, token):
+        self.lineno += token.value.count("\n")
+
+
+    @token_rule(r'/\*')
+    def ignore_unclosed_comment(self, token):
+        raise LexicalError("/", token.lineno, token.index, "unterminated block comment")
 
 
     @token_rule(r'[0-9]+[a-zA-Z_][a-zA-Z0-9_]*')
     def ignore_invalid_identifier(self, token):
         raise LexicalError(token.value[0], token.lineno, token.index, f"invalid identifier {token.value}")
-
-    INTEGER = r'[0-9]+'
-
+    
 
     @token_rule(r'[a-zA-Z][a-zA-Z0-9]*')
     def ID(self, token):
