@@ -1,5 +1,6 @@
 from sly import Lexer
 
+TOKEN_LABELS = {"INTEGER": "integer", "STRING": "string", "KEYWORD": "keyword", "LPAREN": "left parenthesis", "RPAREN": "right parenthesis", "SEMICOLON": "semicolon"}
 
 def token_rule(pattern):
     def decorate(function):
@@ -17,8 +18,8 @@ class LexicalError(Exception):
         if detail:
             message += f" ({detail})"
         super().__init__(message)
-
-
+        
+        
 class MiniLexer(Lexer):
     tokens = {"ID", "INTEGER", "STRING", "KEYWORD", "PLUS", "MINUS", "TIMES", "DIVIDE", "ASSIGN", "GT", "GE", "LT", "LE", "EQ", "INCREMENT", "DECREMENT", "LPAREN", "RPAREN", "SEMICOLON"}
     keywords = {"if", "then", "else", "endif", "while", "do", "endwhile", "print", "newline", "read"}
@@ -28,11 +29,16 @@ class MiniLexer(Lexer):
     def ignore_line_comment(self, token):
         pass
 
-    @token_rule(r'/\*(?:[^*]|\*(?!/))*(?:\*/|\Z)')
+
+    @token_rule(r'/\*[\s\S]*?\*/')
     def ignore_block_comment(self, token):
-        if len(token.value) < 4 or not token.value.endswith("*/"):
-            raise LexicalError("/", token.lineno, token.index, "unterminated block comment")
         self.lineno += token.value.count("\n")
+
+
+    @token_rule(r'/\*')
+    def ignore_unclosed_comment(self, token):
+        raise LexicalError("/", token.lineno, token.index, "unterminated block comment")
+
 
     GE = r'>='
     LE = r'<='
@@ -46,10 +52,13 @@ class MiniLexer(Lexer):
     ASSIGN = r'='
     GT = r'>'
     LT = r'<'
+
     LPAREN = r'\('
     RPAREN = r'\)'
     SEMICOLON = r';'
+
     STRING = r'"[^"\n\r]*"'
+
 
     @token_rule(r'[0-9]+[a-zA-Z_][a-zA-Z0-9_]*')
     def ignore_invalid_identifier(self, token):
@@ -57,33 +66,39 @@ class MiniLexer(Lexer):
 
     INTEGER = r'[0-9]+'
 
+
     @token_rule(r'[a-zA-Z][a-zA-Z0-9]*')
     def ID(self, token):
-        token.type = "KEYWORD" if token.value in self.keywords else "ID"
+        if token.value in self.keywords:
+            token.type = "KEYWORD"
         return token
+
 
     @token_rule(r'\n+')
     def ignore_newline(self, token):
         self.lineno += len(token.value)
 
+
     def error(self, token):
-        detail = "unterminated string" if token.value[0] == '"' else None
+        detail = None
+        if token.value[0] == '"':
+            detail = "unterminated string"
         raise LexicalError(token.value[0], token.lineno, token.index, detail)
 
 
-class Analyzer:
-    def __init__(self):
-        self.symbol_table = set()
+def format_token(token, symbol_table):
+    if token.type == "ID":
+        if token.value in symbol_table:
+            return f'identifier "{token.value}" already in symbol table'
+        symbol_table.add(token.value)
+        return f"new identifier: {token.value}"
+    label = TOKEN_LABELS.get(token.type, "operator")
+    return f"{label}: {token.value}"
 
-    def analyze(self, source):
-        self.symbol_table.clear()
-        for token in MiniLexer().tokenize(source):
-            if token.type == "ID":
-                if token.value in self.symbol_table:
-                    yield f'identifier "{token.value}" already in symbol table'
-                else:
-                    self.symbol_table.add(token.value)
-                    yield f"new identifier: {token.value}"
-            else:
-                label = { "INTEGER": "integer", "STRING": "string", "KEYWORD": "keyword", "LPAREN": "left parenthesis", "RPAREN": "right parenthesis", "SEMICOLON": "semicolon", }.get(token.type, "operator")
-                yield f"{label}: {token.value}"
+
+def analyze(source):
+    symbol_table = set()
+    lexer = MiniLexer()
+    for token in lexer.tokenize(source):
+        print(format_token(token, symbol_table))
+    return symbol_table

@@ -49,13 +49,15 @@ Lexical error: unexpected character @
 | `tests/test_lexer.py` | ตรวจ token, symbol table, error และ CLI |
 | `docs/design.md` | อธิบายการออกแบบและ finite automata สำหรับใช้เตรียมรายงาน |
 
+ลำดับการทำงานคือ `main()` อ่านไฟล์ → `analyze(source)` สร้าง symbol table และวนอ่าน token → `MiniLexer` จับ token ด้วย SLY → `format_token()` จัดข้อความ → แสดงผลทีละ token กฎ block comment ที่ปิดครบและกฎ comment ที่ปิดไม่ครบแยกจากกันเพื่อให้ Regex อ่านง่าย
+
 ## ทดสอบ
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-ชุดทดสอบใช้ standard library `unittest` รวมการเทียบ output ของตัวอย่างในโจทย์, operator ที่อยู่ติดกัน, case-sensitive keywords, comments หลายบรรทัด, strings, จำนวนลบ, identifier ผิดรูปแบบ, การหยุดเมื่อ error, การล้าง symbol table ระหว่าง input และการรัน CLI กับไฟล์ตัวอย่างทั้งหมด
+ชุดทดสอบใช้ standard library `unittest` รวมการเทียบ output ของตัวอย่างทั้งสองในโจทย์, operator ที่อยู่ติดกัน, case-sensitive keywords, comments หลายบรรทัดและที่อยู่ติดกัน, strings, จำนวนลบ, identifier ผิดรูปแบบ, การหยุดเมื่อ error, symbol table ใหม่สำหรับแต่ละ input, ไฟล์ UTF-8 BOM ที่มีข้อความไทย และการรัน CLI กับไฟล์ตัวอย่างทั้งหมด
 
 ## ขอบเขตการทำงาน
 

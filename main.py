@@ -1,7 +1,6 @@
 import argparse
 from pathlib import Path
-
-from lexer import Analyzer, LexicalError
+from lexer import LexicalError, analyze
 
 
 def main(argv=None):
@@ -14,8 +13,7 @@ def main(argv=None):
         parser.exit(2, f"Input error: {error}\n")
 
     try:
-        for line in Analyzer().analyze(source):
-            print(line)
+        analyze(source)
     except LexicalError as error:
         print(error)
         return 1
