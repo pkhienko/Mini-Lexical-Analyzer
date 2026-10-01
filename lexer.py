@@ -33,7 +33,6 @@ class MiniLexer(Lexer):
     PLUS = r'\+'
     MINUS = r'-'
     TIMES = r'\*'
-    DIVIDE = r'/'
     ASSIGN = r'='
     GT = r'>'
     LT = r'<'
@@ -43,7 +42,6 @@ class MiniLexer(Lexer):
     SEMICOLON = r';'
 
     STRING = r'"[^"\n\r]*"'
-    INTEGER = r'[0-9]+'
 
     @token_rule(r'//[^\n]*')
     def ignore_line_comment(self, token):
@@ -59,10 +57,14 @@ class MiniLexer(Lexer):
     def ignore_unclosed_comment(self, token):
         raise LexicalError("/", token.lineno, token.index, "unterminated block comment")
 
+    DIVIDE = r'/'
+
 
     @token_rule(r'[0-9]+[a-zA-Z_][a-zA-Z0-9_]*')
     def ignore_invalid_identifier(self, token):
         raise LexicalError(token.value[0], token.lineno, token.index, f"invalid identifier {token.value}")
+
+    INTEGER = r'[0-9]+'
     
 
     @token_rule(r'[a-zA-Z][a-zA-Z0-9]*')
